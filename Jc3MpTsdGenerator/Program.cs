@@ -14,6 +14,9 @@ namespace Jc3MpTsdGenerator
         private const string ClientDefinitionFilePath = "client.d.ts";
         private const string ServerDefinitionFilePath = "server.d.ts";
 
+        private const string ClientAppendFilePath = "Content/append_client.txt";
+        private const string ServerAppendFilePath = "Content/append_server.txt";
+
         public static void Main()
         {
             var clientDefinition = DownloadApiDefinition(ClientApiUrl);
@@ -27,11 +30,24 @@ namespace Jc3MpTsdGenerator
             var outputDirectory = Path.GetFullPath(Path.Combine(".", "definitions"));
             EnsureEmptyDirectory(outputDirectory);
 
-            var clientDefinitionGenerator = new DefinitionGenerator(clientDefinition, Path.Combine(outputDirectory, ClientDefinitionFilePath));
+            var clientDefinitionsOutputPath = Path.Combine(outputDirectory, ClientDefinitionFilePath);
+            var clientDefinitionGenerator = new DefinitionGenerator(clientDefinition, clientDefinitionsOutputPath);
             clientDefinitionGenerator.Generate();
 
-            var serverDefinitionGenerator = new DefinitionGenerator(serverDefinition, Path.Combine(outputDirectory, ServerDefinitionFilePath));
+            AppendIfExists(ClientAppendFilePath, clientDefinitionsOutputPath);
+
+            var serverDefinitionsOutputPath = Path.Combine(outputDirectory, ServerDefinitionFilePath);
+            var serverDefinitionGenerator = new DefinitionGenerator(serverDefinition, serverDefinitionsOutputPath);
             serverDefinitionGenerator.Generate();
+
+            AppendIfExists(ServerAppendFilePath, serverDefinitionsOutputPath);
+        }
+
+        private static void AppendIfExists(string appendFile, string appendToFile)
+        {
+            if (!File.Exists(appendFile) || !File.Exists(appendToFile)) return;
+
+            File.AppendAllText(appendToFile, File.ReadAllText(appendFile));
         }
 
         private static ApiDefinition DownloadApiDefinition(string url)
