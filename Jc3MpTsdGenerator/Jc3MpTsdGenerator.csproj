@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,11 +45,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\ApiDefinition.cs" />
+    <Compile Include="DefinitionsGenerator.cs" />
+    <Compile Include="Models\DefinitionWriterState.cs" />
+    <Compile Include="TypeCasters\ArrayTypeCaster.cs" />
+    <Compile Include="TypeCasters\FunctionToLambdaCaster.cs" />
+    <Compile Include="TypeCasters\ITypeCaster.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeCasters\NullBackTickCaster.cs" />
+    <Compile Include="TypeCasters\OrTypeCaster.cs" />
+    <Compile Include="TypeCasters\PlayerWeapnTypeCaster.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
