@@ -11,16 +11,27 @@ namespace Jc3MpTsdGenerator
         private const string ClientApiUrl = "https://gitlab.nanos.io/jc3mp-docs/scripting-api-docs/raw/master/client/client.json";
         private const string ServerApiUrl = "https://gitlab.nanos.io/jc3mp-docs/scripting-api-docs/raw/master/server/server.json";
 
+        private const string ClientDefinitionFilePath = "client.d.ts";
+        private const string ServerDefinitionFilePath = "server.d.ts";
+
         public static void Main()
         {
             var clientDefinition = DownloadApiDefinition(ClientApiUrl);
             var serverDefinition = DownloadApiDefinition(ServerApiUrl);
 
+            GenerateDefinitions(clientDefinition, serverDefinition);
+        }
+
+        private static void GenerateDefinitions(ApiDefinition clientDefinition, ApiDefinition serverDefinition)
+        {
             var outputDirectory = Path.GetFullPath(Path.Combine(".", "definitions"));
             EnsureEmptyDirectory(outputDirectory);
 
-            var parser = new DefinitionsGenerator(clientDefinition, serverDefinition, outputDirectory);
-            parser.Generate();
+            var clientDefinitionGenerator = new DefinitionGenerator(clientDefinition, Path.Combine(outputDirectory, ClientDefinitionFilePath));
+            clientDefinitionGenerator.Generate();
+
+            var serverDefinitionGenerator = new DefinitionGenerator(serverDefinition, Path.Combine(outputDirectory, ServerDefinitionFilePath));
+            serverDefinitionGenerator.Generate();
         }
 
         private static ApiDefinition DownloadApiDefinition(string url)

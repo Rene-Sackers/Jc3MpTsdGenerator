@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\ApiDefinition.cs" />
-    <Compile Include="DefinitionsGenerator.cs" />
+    <Compile Include="DefinitionGenerator.cs" />
     <Compile Include="Models\DefinitionWriterState.cs" />
     <Compile Include="TypeCasters\ArrayTypeCaster.cs" />
     <Compile Include="TypeCasters\FunctionToLambdaCaster.cs" />
