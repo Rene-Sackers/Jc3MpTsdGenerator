@@ -9,7 +9,6 @@ namespace Jc3MpTsdGenerator
 {
     public class DefinitionGenerator
     {
-
         private static readonly List<ITypeCaster> TypeCasters = new List<ITypeCaster>
         {
             new OrTypeCaster(),
@@ -121,14 +120,14 @@ namespace Jc3MpTsdGenerator
                 _writer.WriteLine($" * {line}");
         }
 
-        private string ProjectTypeAsArray(string returnType)
+        private static string ProjectTypeAsArray(string returnType)
         {
             returnType = ProjectType(returnType);
 
             return $"Array<{returnType}>";
         }
 
-        private string ProjectType(string returnType)
+        private static string ProjectType(string returnType)
         {
             if (string.IsNullOrWhiteSpace(returnType))
                 return "any";
@@ -160,10 +159,10 @@ namespace Jc3MpTsdGenerator
             _writer.WriteBlankLine();
         }
 
-        private string RenderMethodParameters(IEnumerable<Parameter> parameters) =>
+        private static string RenderMethodParameters(IEnumerable<Parameter> parameters) =>
             "(" + string.Join(", ", parameters.Select(RenderMethodParameter).ToArray()) + ")";
 
-        private string RenderMethodParameter(Parameter parameter)
+        private static string RenderMethodParameter(Parameter parameter)
         {
             var isParamsParameter = parameter.Name.StartsWith("...");
             var returnType = isParamsParameter ? ProjectTypeAsArray(parameter.Type) : ProjectType(parameter.Type);
