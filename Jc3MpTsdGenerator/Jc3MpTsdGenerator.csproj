@@ -45,6 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassDefinitionAppenders\EventSystemDefinitionAppender.cs" />
+    <Compile Include="ClassDefinitionAppenders\IClassDefinitionAppender.cs" />
+    <Compile Include="Extensions\WriterExtensions.cs" />
+    <Compile Include="Helpers\MethodParameterRendering.cs" />
+    <Compile Include="Helpers\TypeProjection.cs" />
     <Compile Include="Models\ApiDefinition.cs" />
     <Compile Include="DefinitionGenerator.cs" />
     <Compile Include="Models\DefinitionWriterState.cs" />
@@ -56,6 +61,7 @@
     <Compile Include="TypeCasters\NullBackTickCaster.cs" />
     <Compile Include="TypeCasters\OrTypeCaster.cs" />
     <Compile Include="TypeCasters\PlayerWeapnTypeCaster.cs" />
+    <Compile Include="TypeCasters\UnknownTypeCaster.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
