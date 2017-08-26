@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Jc3MpTsdGenerator.Models;
 using Jc3MpTsdGenerator.TypeCasters;
 
@@ -41,10 +42,19 @@ namespace Jc3MpTsdGenerator
 
         private void GenerateClassDefinition(Class @class)
         {
+            if (!string.IsNullOrWhiteSpace(@class.InstanceOf))
+            {
+                DeclareClassInstance(@class);
+                return;
+            }
+
             // Description
-            _writer.WriteLine("/**");
-            WriteCommentBlockContent(@class.Description);
-            _writer.WriteLine(" */");
+            if (!string.IsNullOrWhiteSpace(@class.Description))
+            {
+                _writer.WriteLine("/**");
+                WriteCommentBlockContent(@class.Description);
+                _writer.WriteLine(" */");
+            }
 
             // Declaration
             WriteInterfaceDeclaration(@class);
@@ -65,14 +75,40 @@ namespace Jc3MpTsdGenerator
             _writer.WriteBlankLine();
         }
 
+        private void DeclareClassInstance(Class @class)
+        {
+            // Description
+            if (!string.IsNullOrWhiteSpace(@class.Description))
+            {
+                _writer.WriteLine("/**");
+                WriteCommentBlockContent(@class.Description);
+                _writer.WriteLine(" */");
+            }
+
+            // Declaration
+            _writer.WriteLine($"declare const {@class.ClassName}: {@class.InstanceOf}");
+            _writer.WriteBlankLine();
+        }
+
+        private static string ProcessCodeComment(string comment)
+        {
+            var linkedTypeRegexReplace = new Regex(@"\{\{linked_type '(?<type>[^']+)'\}\}");
+            comment = linkedTypeRegexReplace.Replace(comment, "{$1}");
+
+            return comment;
+        }
+
         private void WriteClassMethod(Function method)
         {
-            _writer.WriteLine("/**");
-            WriteCommentBlockContent(method.Description);
-            WriteParametersCommentBlock(method.Parameters);
-            if (!string.IsNullOrWhiteSpace(method.Example))
-                WriteCommentBlockContent("@example " + method.Example);
-            _writer.WriteLine(" */");
+            if (!string.IsNullOrWhiteSpace(method.Description) || method.Parameters.Any() || !string.IsNullOrWhiteSpace(method.Example))
+            {
+                _writer.WriteLine("/**");
+                WriteCommentBlockContent(method.Description);
+                WriteParametersCommentBlock(method.Parameters);
+                if (!string.IsNullOrWhiteSpace(method.Example))
+                    WriteCommentBlockContent("@example " + method.Example);
+                _writer.WriteLine(" */");
+            }
 
             _writer.WriteLine($"{method.Name}{RenderMethodParameters(method.Parameters)}: {ProjectType(method.ReturnType)}");
             _writer.WriteBlankLine();
@@ -89,8 +125,6 @@ namespace Jc3MpTsdGenerator
         private void WriteInterfaceDeclaration(Class @class)
         {
             var interfaceDeclarationBuilder = $"declare interface {@class.ClassName}";
-            if (!string.IsNullOrWhiteSpace(@class.InstanceOf))
-                interfaceDeclarationBuilder += $" extends {@class.InstanceOf}";
 
             _writer.WriteLine($"{interfaceDeclarationBuilder} {{");
         }
@@ -105,16 +139,16 @@ namespace Jc3MpTsdGenerator
 
         private void WriteParametersCommentBlockParameter(Parameter parameter)
         {
-            _writer.WriteLine($" * @param {ProjectType(parameter.Type)} {parameter.Name.Replace("...", "")}");
+            _writer.WriteLine($" * @param {{{ProjectType(parameter.Type)}}} {parameter.Name.Replace("...", "")}");
         }
-
-
+        
         private void WriteCommentBlockContent(string comment)
         {
             if (string.IsNullOrWhiteSpace(comment))
                 return;
 
             comment = comment.Replace("\r\n", "\n").Replace("\r", "\n");
+            comment = ProcessCodeComment(comment);
 
             foreach (var line in comment.Split(new[] { "\n" }, StringSplitOptions.None))
                 _writer.WriteLine($" * {line}");
@@ -139,9 +173,12 @@ namespace Jc3MpTsdGenerator
 
         private void WriteClassProperty(Property property)
         {
-            _writer.WriteLine("/**");
-            WriteCommentBlockContent(property.Description);
-            _writer.WriteLine(" */");
+            if (!string.IsNullOrWhiteSpace(property.Description))
+            {
+                _writer.WriteLine("/**");
+                WriteCommentBlockContent(property.Description);
+                _writer.WriteLine(" */");
+            }
 
             var propertyBuilder = string.Empty;
 
