@@ -56,6 +56,10 @@ namespace Jc3MpTsdGenerator
             WriteInterfaceDeclaration(@class);
             _writer.IncreaseIndentation();
 
+            // Custom properties
+            if (@class.CustomProperties)
+                WriteCustomPropertiesIndexers();
+
             // Properties
             @class.Properties.ToList().ForEach(WriteClassProperty);
 
@@ -71,6 +75,13 @@ namespace Jc3MpTsdGenerator
             // Closing
             _writer.DecreaseIndentation();
             _writer.WriteLine("}");
+            _writer.WriteBlankLine();
+        }
+
+        private void WriteCustomPropertiesIndexers()
+        {
+            _writer.WriteLine("[customProperty: string]: any;");
+            _writer.WriteLine("[customProperty: number]: any;");
             _writer.WriteBlankLine();
         }
 
