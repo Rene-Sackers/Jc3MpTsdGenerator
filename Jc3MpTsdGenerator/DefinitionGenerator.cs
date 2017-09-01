@@ -15,7 +15,7 @@ namespace Jc3MpTsdGenerator
 
         private DefinitionWriterState _writer;
 
-        private static List<IClassDefinitionAppender> _classDefinitionAppenders = new List<IClassDefinitionAppender>
+        private static readonly List<IClassDefinitionAppender> ClassDefinitionAppenders = new List<IClassDefinitionAppender>
         {
             new EventSystemDefinitionAppender()
         };
@@ -25,7 +25,7 @@ namespace Jc3MpTsdGenerator
             _definition = definition;
             _outputPath = outputPath;
         }
-        
+
         public void Generate()
         {
             using (var serverDefinitionFileStream = File.Create(_outputPath))
@@ -70,7 +70,7 @@ namespace Jc3MpTsdGenerator
             @class.Functions.ToList().ForEach(WriteClassMethod);
 
             // Appenders
-            _classDefinitionAppenders.ForEach(appender => appender.AppendDefinition(_definition, @class, _writer));
+            ClassDefinitionAppenders.ForEach(appender => appender.AppendDefinition(_definition, @class, _writer));
 
             // Closing
             _writer.DecreaseIndentation();
@@ -119,8 +119,8 @@ namespace Jc3MpTsdGenerator
         private void WriteClassConstructor(Class @class)
         {
             if (!@class.HasConstructor) return;
-            
-            _writer.WriteLine($"constructor{MethodParameterRendering.RenderMethodParameters(@class.Constructor.Parameters)};");
+
+            _writer.WriteLine($"constructor{MethodParameterRendering.RenderMethodParameters(@class.Constructor.Parameters)}: {@class.ClassName};");
             _writer.WriteBlankLine();
         }
 

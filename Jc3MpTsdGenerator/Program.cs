@@ -17,6 +17,12 @@ namespace Jc3MpTsdGenerator
         private const string ClientAppendFilePath = "Content/append_client.txt";
         private const string ServerAppendFilePath = "Content/append_server.txt";
 
+        private const string ClientAdditionalFilesPath = "AdditionalFiles/client";
+        private const string ServerAdditionalFilesPath = "AdditionalFiles/server";
+
+        private const string ClientOutputPath = "definitions/jcmp-client";
+        private const string ServerOutputPath = "definitions/jcmp-server";
+
         public static void Main()
         {
             var clientDefinition = DownloadApiDefinition(ClientApiUrl);
@@ -27,20 +33,38 @@ namespace Jc3MpTsdGenerator
 
         private static void GenerateDefinitions(ApiDefinition clientDefinition, ApiDefinition serverDefinition)
         {
-            var outputDirectory = Path.GetFullPath(Path.Combine(".", "definitions"));
-            EnsureEmptyDirectory(outputDirectory);
+            var clientOutputDirectory = Path.GetFullPath(ClientOutputPath);
+            EnsureEmptyDirectory(clientOutputDirectory);
 
-            var clientDefinitionsOutputPath = Path.Combine(outputDirectory, ClientDefinitionFilePath);
+            var clientDefinitionsOutputPath = Path.Combine(clientOutputDirectory, ClientDefinitionFilePath);
             var clientDefinitionGenerator = new DefinitionGenerator(clientDefinition, clientDefinitionsOutputPath);
             clientDefinitionGenerator.Generate();
 
             AppendIfExists(ClientAppendFilePath, clientDefinitionsOutputPath);
+            if (Directory.Exists(ClientAdditionalFilesPath))
+                CopyDirectoryContents(ClientAdditionalFilesPath, clientOutputDirectory);
 
-            var serverDefinitionsOutputPath = Path.Combine(outputDirectory, ServerDefinitionFilePath);
+            var serverOutputDirectory = Path.GetFullPath(ServerOutputPath);
+            EnsureEmptyDirectory(serverOutputDirectory);
+
+            var serverDefinitionsOutputPath = Path.Combine(serverOutputDirectory, ServerDefinitionFilePath);
             var serverDefinitionGenerator = new DefinitionGenerator(serverDefinition, serverDefinitionsOutputPath);
             serverDefinitionGenerator.Generate();
 
             AppendIfExists(ServerAppendFilePath, serverDefinitionsOutputPath);
+            if (Directory.Exists(ServerAdditionalFilesPath))
+                CopyDirectoryContents(ServerAdditionalFilesPath, serverOutputDirectory);
+        }
+
+        private static void CopyDirectoryContents(string sourcePath, string targetPath)
+        {
+            foreach (var dirPath in Directory.GetDirectories(sourcePath, "*",
+                SearchOption.AllDirectories))
+                Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+            
+            foreach (var newPath in Directory.GetFiles(sourcePath, "*.*",
+                SearchOption.AllDirectories))
+                File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
         }
 
         private static void AppendIfExists(string appendFile, string appendToFile)

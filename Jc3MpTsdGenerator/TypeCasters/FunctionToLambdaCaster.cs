@@ -4,7 +4,7 @@
     {
         public string Execute(string type)
         {
-            return type == "function" ? "(...any) => any" : type;
+            return type == "function" ? "(...parameters: any[]) => any" : type;
         }
     }
 }
